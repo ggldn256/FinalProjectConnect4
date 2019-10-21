@@ -14,9 +14,11 @@ In this project we plan on implementing Connect 4 as a playable game via Java. W
 8
 
 9
--A completed Connect 4 game
--Fully functional "player" clients, and a functioning server that hosts the game.
--Being able to replay the game without restarting the client.
+ 1. A completed Connect 4 game
+ 
+ 2. Fully functional "player" clients, and a functioning server that hosts the game.
+ 
+ 3. Being able to replay the game without restarting the client.
 10
 
 11
