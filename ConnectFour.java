@@ -1,4 +1,4 @@
-package connectfour;
+package connectfourgame;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -32,11 +32,8 @@ public class ConnectFour {
     /**
      * Prompts the user for what column they would like to add the X or O too.
      */
-    public void chooseAndDrop(char symbol, Scanner input) {
+    public void chooseAndDrop(char symbol, int col) {
         do {
-            System.out.print("\nPlayer " + symbol + " turn: ");
-            int col = input.nextInt();
-
             if (! (0 <= col && col < this.width)) {
                 System.out.println("Column must be between 0 and " +
                                    (this.width - 1));
@@ -57,14 +54,14 @@ public class ConnectFour {
     /**
      * Checks the row of the last chip played to see if a match was made.
      */
-    private String horizontal() {
+    public String horizontal() {
         return new String(this.grid[this.lastTop]);
     }
 
     /**
      * Checks the vertical column of the last chip just played to try and find a match.
      */
-    private String vertical() {
+    public String vertical() {
         StringBuilder sb = new StringBuilder(this.height);
         for (int h = 0; h < this.height; h++) {
             sb.append(grid[h][lastCol]);
@@ -118,7 +115,7 @@ public class ConnectFour {
     	//Try to create a scanner
     	//If able to, create the board.
         try (Scanner input = new Scanner(System.in)) {
-        	//Make a 6x8 board, and in order to figure out the maximum number of moves multiple row x column.
+        	//Make a 6x8 board, and in order to figure out the maximum number of moves multiply row x column.
         	//Create a connect four board object with the width and height as the parameters.
             int height = 6, width = 8, moves = height * width;
             ConnectFour board = new ConnectFour(width, height);
@@ -133,7 +130,7 @@ public class ConnectFour {
             for (int player = 0; moves-- > 0; player = 1 - player) {
             //Assigns a player to the corresponding symbol. (X's and O's).
                 char symbol = players[player];
-                board.chooseAndDrop(symbol, input);
+                //board.chooseAndDrop(symbol, input);
                 System.out.println(board);
                 
                 //Check for a win
@@ -148,4 +145,5 @@ public class ConnectFour {
             System.out.println("Game over, no winner.");
         }
     }
+
 }
