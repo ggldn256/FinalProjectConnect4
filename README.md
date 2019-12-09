@@ -25,6 +25,3 @@ In this project we plan on implementing Connect 4 as a playable game via Java. W
 ## Team members
 * Greg Golden, Co-Team Lead
 * Paul Couture, Co-Team Lead
-
-## References
-https://medium.com/@ssaurel/creating-a-connect-four-game-in-java-f45356f1d6ba

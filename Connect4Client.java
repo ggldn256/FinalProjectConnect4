@@ -59,10 +59,12 @@ public class Connect4Client {
 
 		@Override
 		public void run() {
+			while (true) {
 			String msg = "";
 			msg = consoleInput.nextLine();
 			out.println(msg);
-
+			}
+			
 		}
 	}
 
