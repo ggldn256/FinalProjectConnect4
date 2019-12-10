@@ -1,160 +1,152 @@
-package connectfourgame;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.ArrayList;
-import java.util.HashSet;;
 
+/**
+ * A server for a multi-player tic tac toe game. Loosely based on an example in
+ * Deitel and Deitel’s “Java How to Program” book. For this project I created a
+ * new application-level protocol called TTTP (for Tic Tac Toe Protocol), which
+ * is entirely plain text. The messages of TTTP are:
+ *
+ * Client -> Server MOVE <n> QUIT
+ *
+ * Server -> Client WELCOME <char> VALID_MOVE OTHER_PLAYER_MOVED <n>
+ * OTHER_PLAYER_LEFT VICTORY DEFEAT TIE MESSAGE <text>
+ */
 public class ConnectFourServer {
 
-// The list of all the print writers for the clients.
-	private static Set<PrintWriter> placeholder = new HashSet<>();
-	private static ArrayList<PrintWriter> writers = new ArrayList<>();
-	private static final char[] players = new char[] { 'X', 'O' };
-
 	public static void main(String[] args) throws Exception {
-		ExecutorService pool = Executors.newFixedThreadPool(500);
-		try (ServerSocket listener = new ServerSocket(59003)) {
+		try (var listener = new ServerSocket(58904)) {
+			System.out.println("Connect 4 Server is Running...");
+			var pool = Executors.newFixedThreadPool(200);
 			while (true) {
-				pool.execute(new Handler(listener.accept()));
-
+				Game game = new Game();
+				pool.execute(game.new Player(listener.accept(), 'X'));
+				pool.execute(game.new Player(listener.accept(), 'O'));
 			}
 		}
 	}
+}
+
+class Game {
+
+	// Board cells numbered 0-8, top to bottom, left to right; null if empty
+	int height = 6, width = 8, moves = 0;
+	ConnectFour board = new ConnectFour(width, height);
+	Player currentPlayer;
+
+	public boolean hasWinner() {
+		return board.checkForWin();
+	}
+
+	public boolean boardFilledUp() {
+		if(moves == height * width) {
+			return true;
+		}else {
+			return false;
+		}
+		
+	}
+
+	public synchronized void move(int location, Player player) {
+		if (player != currentPlayer) {
+			throw new IllegalStateException("Not your turn");
+		} else if (player.opponent == null) {
+			throw new IllegalStateException("You don't have an opponent yet");
+		}
+		board.chooseAndDrop(currentPlayer.mark, location);
+		currentPlayer = currentPlayer.opponent;
+		moves++;
+	}
 
 	/**
-	 * The client handler task.
+	 * A Player is identified by a character mark which is either 'X' or 'O'. For
+	 * communication with the client the player has a socket and associated Scanner
+	 * and PrintWriter.
 	 */
-	private static class Handler implements Runnable {
-		private Socket socket;
-		private Scanner in;
-		private PrintWriter out;
+	class Player implements Runnable {
+		char mark;
+		Player opponent;
+		Socket socket;
+		Scanner input;
+		PrintWriter output;
 
-		public Handler(Socket socket) {
+		public Player(Socket socket, char mark) {
 			this.socket = socket;
+			this.mark = mark;
 		}
 
+		@Override
 		public void run() {
 			try {
-				in = new Scanner(socket.getInputStream());
-				out = new PrintWriter(socket.getOutputStream(), true);
-				
-				boolean playAgain = true;
-
-				System.out.println("PrintWriter created");
-				placeholder.add(out);
-
-
-				
-				System.out.println(placeholder.size());
-				while (placeholder.size() != 2) {
-				
-					
-				}
-				if (placeholder.size() == 2) {
-					System.out.println("if statement works");
-					for (PrintWriter writer : placeholder) {
-						System.out.println(writer);
-						writer.println("2 players joined starting game...");
-
-					}
-				
-					while (playAgain == true) {
-
-						try (Scanner input = new Scanner(System.in)) {
-							// Make a 6x8 board, and in order to figure out the maximum number of moves
-							// multiply row x column.
-							// Create a connect four board object with the width and height as the
-							// parameters.
-							int height = 6, width = 8, moves = height * width;
-							ConnectFour board = new ConnectFour(width, height);
-
-							System.out.println("Board created.");
-							
-							for (PrintWriter writer : placeholder) {
-								writers.add(writer);
-							}
-
-							for (int player = 0; moves-- > 0; player = 1 - player) {
-								// Assigns a player to the corresponding symbol. (X's and O's).
-								char symbol = players[player];
-								PrintWriter x = writers.get(0);
-								PrintWriter o = writers.get(1);
-								if (symbol == 'X') {
-									System.out.println("test");
-									
-									x.println("Choose a column 0-" + (width - 1));
-									x.println(board);
-									int col = in.nextInt();
-									System.out.println(col);
-									board.chooseAndDrop(symbol, col);
-									x.println(board);
-									if (board.checkForWin()) {
-										for (PrintWriter writer : writers) {
-											writer.println("Player 1 wins!");
-										}
-										x.println("Would you like to play again?(y/n)");
-										String xResponse = in.next();
-										o.println("Would you like to play again?(y/n)");
-										String oResponse = in.next();
-										if (xResponse == "n" || oResponse == "n") {
-											playAgain = false;
-										}
-									} else {
-										x.println("Waiting for player 2 to choose...");
-									}
-
-								} else if (symbol == 'O') {
-									
-									o.println("Choose a column 0-" + (width - 1));
-									o.println(board);
-									int col = in.nextInt();
-									System.out.println(col);
-									System.out.println("test");
-									board.chooseAndDrop(symbol, col);
-									o.println(board);
-									if (board.checkForWin()) {
-										for (PrintWriter writer : writers) {
-											writer.println("Player 2 wins!");
-										}
-										x.println("Would you like to play again?(y/n)");
-										String xResponse = in.next();
-										o.println("Would you like to play again?(y/n)");
-										String oResponse = in.next();
-										if (xResponse == "n" || oResponse == "n") {
-											playAgain = false;
-										}
-									} else {
-										o.println("Waiting for player 1 to choose...");
-									}
-								}
-
-							}
-						}
-					}
-
-				}else {
-					
-				}
+				setup();
+				processCommands();
 			} catch (Exception e) {
-				System.out.println(e);
+				e.printStackTrace();
 			} finally {
-				if (out != null) {
-					writers.remove(out);
+				if (opponent != null && opponent.output != null) {
+					opponent.output.println("OTHER_PLAYER_LEFT");
 				}
-			
 				try {
 					socket.close();
 				} catch (IOException e) {
 				}
 			}
+		}
 
+		private void setup() throws IOException {
+			input = new Scanner(socket.getInputStream());
+			output = new PrintWriter(socket.getOutputStream(), true);
+			output.println("WELCOME " + mark);
+			if (mark == 'X') {
+				currentPlayer = this;
+				output.println("MESSAGE Waiting for opponent to connect");
+			} else {
+				opponent = currentPlayer;
+				opponent.opponent = this;
+				opponent.output.println("MESSAGE Your move");
+			}
+		}
+
+		private void processCommands() {
+			
+			while (input.hasNextLine()) {
+				var command = input.nextLine();
+				if (command.startsWith("QUIT")) {
+					return;
+				} else if (command.startsWith("READY")) {
+					if(mark == 'X') {
+					output.println("CHOOSE_MOVE");
+					}else if(mark == 'O') {
+					output.println("MESSAGE Opponent goes first.");
+					}
+				}else if(command.startsWith("MOVE ")) {
+					processMoveCommand(Integer.parseInt(command.substring(5)));
+					
+				}
+			}
+		}
+
+		private void processMoveCommand(int location) {
+			try {
+				if (hasWinner()) {
+					output.println("VICTORY");
+					opponent.output.println("DEFEAT");
+				} else if (boardFilledUp()) {
+					output.println("TIE");
+					opponent.output.println("TIE");
+				}else {
+				move(location, this);
+				output.println("VALID_MOVE");
+				opponent.output.println("OPPONENT_MOVED " + location);
+				opponent.output.println("CHOOSE_MOVE");
+				}
+			} catch (IllegalStateException e) {
+				output.println("MESSAGE " + e.getMessage());
+			}
 		}
 	}
 }
