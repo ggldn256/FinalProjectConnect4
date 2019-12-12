@@ -9,9 +9,9 @@ We decided to create Connect Four Online, by implementing a server-client connec
 
 ## Install
 In order to install do the following:
- 1. Create a java project folder that has a src folder inside.
- 2. Then copy the git link from the git repository, and go to eclipse and import it using the git link.
- 3. It then should download the three java files and the README needed, in order to run the game properly.
+ 1. Download the zip file of the game from the github.
+ 2. Extract the file.
+ 3. Import to an IDE (Eclipse Workspace for example).
  
  ## Run
  In order to run do the following:
