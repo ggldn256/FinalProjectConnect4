@@ -28,7 +28,7 @@ In order to install do the following:
 3. Allows for a 2-player full Connect 4 experience, where the two clients and the server send commands to eachother on updated chip        placements, and if a match was made.
 
 ## Demo Video
-Link:
+Link: https://youtu.be/L1HBBycp2Zo
 
 ## References
 https://medium.com/@ssaurel/creating-a-connect-four-game-in-java-f45356f1d6ba
